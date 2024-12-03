@@ -1,3 +1,4 @@
+import AddTask from "@/components/AddTask";
 import { View, Text, StyleSheet } from "react-native";
 
 export default function Home() {
@@ -5,6 +6,7 @@ export default function Home() {
   return (
     <View style={styles.container}>
       <Text style={styles.textHeader}>Tasks:</Text>
+      <AddTask/>
     </View>
   );
 }
