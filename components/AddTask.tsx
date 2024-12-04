@@ -1,4 +1,3 @@
-import { useStore } from "@/store/store";
 import {
   TextInput,
   View,
@@ -10,68 +9,84 @@ import {
 } from "react-native";
 import DateTimePicker, { DateType } from "react-native-ui-datepicker";
 import dayjs from "dayjs";
-import { useId, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesome5 } from "@expo/vector-icons";
-import Animated, { useSharedValue, withSpring, withTiming } from "react-native-reanimated";
+import Animated, { useSharedValue, withSpring } from "react-native-reanimated";
+import store from "@/store/store";
+import transformDate from "@/functions/transformDate";
 
 const WIDTH = 350;
 const HEIGHT = 300;
 
-export default function AddTask() {
-  const { todoList } = useStore();
+interface Prop {
+  closeModule: () => void;
+  isModuleDisplayed: boolean;
+}
+
+export default function AddTask({ closeModule, isModuleDisplayed }: Prop) {
   const [date, setDate] = useState<DateType | undefined>(dayjs());
-  
   const [error, setError] = useState<null | string>(null);
 
   const widthOfTheScreen = useWindowDimensions().width;
   const translateX = useSharedValue(-widthOfTheScreen);
-  const displayPicker = () => translateX.value = withSpring(0);
-  const hidePicker = () => translateX.value = withSpring(-widthOfTheScreen);
+  const displayPicker = () => (translateX.value = withSpring(0));
+  const hidePicker = () => (translateX.value = withSpring(-widthOfTheScreen));
 
-  const title = useRef("");
-  const saveTitle = (text: string) => title.current = text;
+  useEffect(() => {
+    !isModuleDisplayed && hidePicker();
+  }, [isModuleDisplayed]);
 
-  const id = useId();
+  const [input, setInput] = useState("");
+  const saveTitle = (text: string) => setInput(text);
+
   function checkAndSend() {
-    if (String(date).length < 17 && title.current.length) todoList.tasks.push({ title: title.current, id, date: String(date), made: false })
-    else setError("You should enter the title and choose the right time!");
-  };
+    if (input.length && date) {
+      store.addItem({
+        title: input,
+        id: "id" + Math.random().toString(16).slice(2),
+        date: new Date(date.toString()),
+        made: false,
+      });
+      closeModule();
+      setInput("");
+    } else setError("You should enter the title and choose the right time!");
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Add new task: </Text>
       <View style={styles.inputs}>
         <TextInput
-        style={styles.input}
-        placeholder="Enter the title of the task"
-        placeholderTextColor="grey"
-        multiline={true}
-        onChangeText={saveTitle}
-        caretHidden={true}
-      />
-      <View style={styles.data}>
-        <TextInput
+          value={input}
           style={styles.input}
-          placeholder={String(date).length < 17 ? date!.toString() : "Choose needed data and time"}
+          placeholder="Enter the title of the task"
           placeholderTextColor="grey"
+          multiline={true}
+          onChangeText={saveTitle}
           caretHidden={true}
         />
-        <TouchableOpacity style={styles.button} onPress={displayPicker}>
-          <FontAwesome5 name="calendar-alt" size={24} color="black" />
-        </TouchableOpacity>
+        <View style={styles.data}>
+          <TextInput
+            style={styles.input}
+            placeholder={transformDate(date)}
+            placeholderTextColor="grey"
+            caretHidden={true}
+          />
+          <TouchableOpacity style={styles.button} onPress={displayPicker}>
+            <FontAwesome5 name="calendar-alt" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
       </View>
-      </View>
-        <Animated.View style={[styles.calendar, {transform: [{translateX}]}]}>
-          <DateTimePicker
-            mode="single"
-            date={date}
-            onChange={(params) => setDate(params.date)}
-            timePicker={true}
+      <Animated.View style={[styles.calendar, { transform: [{ translateX }] }]}>
+        <DateTimePicker
+          mode="single"
+          date={date}
+          onChange={(params) => setDate(params.date)}
         />
-        <Button title="Choose" onPress={hidePicker}/>
+        <Button title="Choose" onPress={hidePicker} />
       </Animated.View>
       {error && <Text style={styles.error}>{error}</Text>}
-      <Button title="Confirm" color="black" onPress={checkAndSend}/>
+      <Button title="Confirm" color="black" onPress={checkAndSend} />
     </View>
   );
 }
@@ -85,6 +100,7 @@ const styles = StyleSheet.create({
     shadowColor: "grey",
     elevation: 10,
     justifyContent: "space-evenly",
+    position: "absolute",
   },
   header: {
     fontSize: 25,
@@ -92,7 +108,7 @@ const styles = StyleSheet.create({
   },
   inputs: {
     width: "100%",
-    alignItems: "center"
+    alignItems: "center",
   },
   input: {
     borderWidth: 1,
@@ -125,6 +141,6 @@ const styles = StyleSheet.create({
     width: WIDTH,
   },
   error: {
-    color: "red"
-  }
+    color: "red",
+  },
 });

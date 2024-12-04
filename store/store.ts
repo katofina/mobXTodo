@@ -1,14 +1,48 @@
-import { createContext, useContext } from "react";
-import todoList from "./todoList";
+import { action, computed, makeObservable, observable } from "mobx";
 
-const store = {
-  todoList: todoList(),
-};
+interface Item {
+  title: string;
+  id: string;
+  date: Date;
+  made: boolean;
+}
 
-export const StoreContext = createContext(store);
+class Store {
+  list: Item[] = [];
 
-export const useStore = () => {
-  return useContext<typeof store>(StoreContext);
-};
+  constructor() {
+    makeObservable(this, {
+      list: observable,
+      addItem: action.bound,
+      removeItem: action.bound,
+      changeMadeProperty: action.bound,
+      count: computed,
+    });
+  }
 
-export default store;
+  addItem = (item: Item) => {
+    const newArr = this.list.concat(item).sort((a, b) => +a.date - +b.date);
+    this.list = newArr;
+  };
+
+  removeItem = (id: string) => {
+    this.list = this.list.filter((item) => item.id !== id);
+  };
+
+  changeMadeProperty = (id: string) => {
+    const newArr = this.list.map((item) =>
+      item.id === id ? { ...item, made: !item.made } : item,
+    );
+    this.list = newArr;
+  };
+
+  get getListItems() {
+    return this.list;
+  }
+
+  get count() {
+    return this.list.length;
+  }
+}
+
+export default new Store();
