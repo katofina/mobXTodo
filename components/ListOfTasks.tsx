@@ -1,58 +1,47 @@
-import { AntDesign } from "@expo/vector-icons";
 import {
   FlatList,
-  TouchableOpacity,
   View,
   Text,
   StyleSheet,
-  useWindowDimensions,
+  LayoutChangeEvent,
 } from "react-native";
-import store from "@/store/store";
-import transformDate from "@/functions/transformDate";
-import ListHeaderComponent, {
-  MIN_CELL_HEIGHT,
-  WIDTH_DATA,
-  WIDTH_DELETE,
-  WIDTH_MADE,
-} from "./ui/ListHeaderComponent";
-import { observer } from "mobx-react";
+import ListHeaderComponent, { MIN_CELL_HEIGHT } from "./ui/ListHeaderComponent";
+import useTasksStore from "@/store/store";
+import { useState } from "react";
+import Task from "./Task";
 
 function ListOfTasks() {
-  const widthScreen = useWindowDimensions().width;
-  const widthTitle = widthScreen - WIDTH_MADE - WIDTH_DELETE - WIDTH_DATA;
+  const tasks = useTasksStore((state) => state.tasks);
 
-  if (store.list.length)
+  const [cellHeights, setCellHeights] = useState<number[]>([]);
+
+  const handleLayout = (event: LayoutChangeEvent, index: number) => {
+    const height = event.nativeEvent.layout.height;
+    setCellHeights((prevHeights) => {
+      const newHeights = [...prevHeights];
+      newHeights[index] = height;
+      return newHeights;
+    });
+  };
+
+  if (tasks.length)
     return (
       <FlatList
-        data={store.list}
-        renderItem={({ item }) => (
-          <View style={styles.itemContainer}>
-            <TouchableOpacity
-              style={styles.made}
-              onPress={() => store.changeMadeProperty(item.id)}
-            >
-              {item.made ? (
-                <AntDesign name="plussquareo" size={24} color="black" />
-              ) : (
-                <AntDesign name="minussquareo" size={24} color="black" />
-              )}
-            </TouchableOpacity>
-            <View style={styles.date}>
-              <Text>{transformDate(item.date)}</Text>
-            </View>
-            <View style={[styles.title, { width: widthTitle }]}>
-              <Text>{item.title}</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.delete}
-              onPress={() => store.removeItem(item.id)}
-            >
-              <AntDesign name="delete" size={24} color="black" />
-            </TouchableOpacity>
-          </View>
+        data={tasks}
+        renderItem={({ item, index }) => (
+          <Task item={item} index={index} handleLayout={handleLayout} />
         )}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={ListHeaderComponent}
+        getItemLayout={(data, index) => {
+          const height = cellHeights[index] || MIN_CELL_HEIGHT;
+          const offset = cellHeights.slice(0, index).reduce((a, b) => a + b, 0);
+          return {
+            length: height,
+            offset: offset,
+            index,
+          };
+        }}
       />
     );
   return (
@@ -62,42 +51,9 @@ function ListOfTasks() {
   );
 }
 
-export default observer(ListOfTasks);
+export default ListOfTasks;
 
 const styles = StyleSheet.create({
-  itemContainer: {
-    flexDirection: "row",
-    borderWidth: 1,
-    minHeight: MIN_CELL_HEIGHT,
-    alignItems: "center",
-  },
-  made: {
-    width: WIDTH_MADE,
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100%",
-  },
-  date: {
-    width: WIDTH_DATA,
-    justifyContent: "center",
-    alignItems: "center",
-    borderLeftWidth: 1,
-    height: "100%",
-  },
-  title: {
-    padding: 5,
-    borderLeftWidth: 1,
-    height: "100%",
-    justifyContent: "center",
-  },
-  delete: {
-    borderLeftWidth: 1,
-    width: WIDTH_DELETE,
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 10,
-  },
   subTextContatiner: {
     alignItems: "center",
     width: "100%",

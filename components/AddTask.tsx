@@ -12,8 +12,8 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { FontAwesome5 } from "@expo/vector-icons";
 import Animated, { useSharedValue, withSpring } from "react-native-reanimated";
-import store from "@/store/store";
 import transformDate from "@/functions/transformDate";
+import useTasksStore from "@/store/store";
 
 const WIDTH = 350;
 const HEIGHT = 300;
@@ -26,6 +26,8 @@ interface Prop {
 export default function AddTask({ closeModule, isModuleDisplayed }: Prop) {
   const [date, setDate] = useState<DateType | undefined>(dayjs());
   const [error, setError] = useState<null | string>(null);
+
+  const addItem = useTasksStore((store) => store.addItem);
 
   const widthOfTheScreen = useWindowDimensions().width;
   const translateX = useSharedValue(-widthOfTheScreen);
@@ -41,7 +43,7 @@ export default function AddTask({ closeModule, isModuleDisplayed }: Prop) {
 
   function checkAndSend() {
     if (input.length && date) {
-      store.addItem({
+      addItem({
         title: input,
         id: "id" + Math.random().toString(16).slice(2),
         date: new Date(date.toString()),

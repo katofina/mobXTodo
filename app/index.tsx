@@ -1,7 +1,6 @@
 import AddTask from "@/components/AddTask";
 import ListOfTasks from "@/components/ListOfTasks";
 import { Entypo } from "@expo/vector-icons";
-import { observer } from "mobx-react";
 import { useState } from "react";
 import {
   View,
@@ -13,7 +12,7 @@ import {
 } from "react-native";
 import Animated, { useSharedValue, withTiming } from "react-native-reanimated";
 
-function Home() {
+export default function Home() {
   const [isModuleDisplayed, setIsModuleDisplayed] = useState(false);
 
   const widthOfModule = 350;
@@ -57,8 +56,6 @@ function Home() {
     </View>
   );
 }
-
-export default observer(Home);
 
 const styles = StyleSheet.create({
   container: {
