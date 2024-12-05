@@ -1,5 +1,6 @@
 import AddTask from "@/components/AddTask";
 import ListOfTasks from "@/components/ListOfTasks";
+import useTasksStore from "@/store/store";
 import { Entypo } from "@expo/vector-icons";
 import { useState } from "react";
 import {
@@ -28,10 +29,16 @@ export default function Home() {
     setIsModuleDisplayed(false);
   }
 
+  const count = useTasksStore(
+    (store) => store.tasks.filter((item) => item.made === false).length,
+  );
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.textHeader}>Tasks:</Text>
+        <View style={styles.containerCounter}>
+          <Text style={styles.textCounter}>Left: {count}</Text>
+        </View>
         <TouchableOpacity style={styles.addButton} onPress={showModule}>
           <Entypo name="add-to-list" size={24} color="black" />
         </TouchableOpacity>
@@ -66,14 +73,28 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 10,
+    alignItems: "center",
   },
   addButton: {
     justifyContent: "center",
     alignItems: "center",
     padding: 10,
+    backgroundColor: "white",
+    shadowColor: "grey",
+    elevation: 10,
   },
   textHeader: {
     fontSize: 30,
+  },
+  containerCounter: {
+    backgroundColor: "white",
+    shadowColor: "grey",
+    elevation: 10,
+    padding: 5,
+    borderWidth: 1,
+  },
+  textCounter: {
+    fontSize: 20,
   },
   overlay: {
     backgroundColor: "transparent",
