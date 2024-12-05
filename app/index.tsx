@@ -1,7 +1,8 @@
 import AddTask from "@/components/AddTask";
 import ListOfTasks from "@/components/ListOfTasks";
+import RandomActivity from "@/components/RandomActivity";
 import useTasksStore from "@/store/store";
-import { Entypo } from "@expo/vector-icons";
+import { Entypo, FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   View,
@@ -12,21 +13,35 @@ import {
   useWindowDimensions,
 } from "react-native";
 import Animated, { useSharedValue, withTiming } from "react-native-reanimated";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 export default function Home() {
-  const [isModuleDisplayed, setIsModuleDisplayed] = useState(false);
+  const queryClient = new QueryClient();
+
+  const [isModuleDisplayed, setIsModuleDisplayed] = useState({
+    1: false,
+    2: false,
+  });
 
   const widthOfModule = 350;
   const width = useWindowDimensions().width;
-  const translateX = useSharedValue(-width);
+  const translateX1 = useSharedValue(-width);
+  const translateX2 = useSharedValue(-width);
 
-  function showModule() {
-    translateX.value = withTiming((width - widthOfModule) / 2);
-    setIsModuleDisplayed(true);
+  function showModule(num: number) {
+    const show = () => withTiming((width - widthOfModule) / 2);
+    if (num === 1) translateX1.value = show();
+    if (num === 2) translateX2.value = show();
+    setIsModuleDisplayed({ ...isModuleDisplayed, [num]: true });
   }
-  function hideModule() {
-    translateX.value = withTiming(-width);
-    setIsModuleDisplayed(false);
+  function hideModule(num: number) {
+    const hideModule1 = () => (translateX1.value = withTiming(-width));
+    if (num === 1) hideModule1();
+    if (num === 2) {
+      hideModule1();
+      translateX2.value = withTiming(-width);
+    }
+    setIsModuleDisplayed({ 1: false, 2: false });
   }
 
   const count = useTasksStore(
@@ -39,26 +54,49 @@ export default function Home() {
         <View style={styles.containerCounter}>
           <Text style={styles.textCounter}>Left: {count}</Text>
         </View>
-        <TouchableOpacity style={styles.addButton} onPress={showModule}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => showModule(1)}
+        >
+          <FontAwesome name="magic" size={24} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => {
+            showModule(2);
+          }}
+        >
           <Entypo name="add-to-list" size={24} color="black" />
         </TouchableOpacity>
       </View>
       <ListOfTasks />
       <Animated.View
         style={{
-          transform: [{ translateX }],
+          transform: [{ translateX: translateX1 }],
+          zIndex: 2,
+          position: "absolute",
+          top: "10%",
+        }}
+      >
+        <QueryClientProvider client={queryClient}>
+          <RandomActivity closeModule={() => hideModule(1)} />
+        </QueryClientProvider>
+      </Animated.View>
+      <Animated.View
+        style={{
+          transform: [{ translateX: translateX2 }],
           zIndex: 2,
           position: "absolute",
           top: "10%",
         }}
       >
         <AddTask
-          isModuleDisplayed={isModuleDisplayed}
-          closeModule={hideModule}
+          isModuleDisplayed={isModuleDisplayed[1]}
+          closeModule={() => hideModule(2)}
         />
       </Animated.View>
-      {isModuleDisplayed && (
-        <Pressable style={styles.overlay} onPress={hideModule} />
+      {(isModuleDisplayed[1] || isModuleDisplayed[2]) && (
+        <Pressable style={styles.overlay} onPress={() => hideModule(2)} />
       )}
     </View>
   );
