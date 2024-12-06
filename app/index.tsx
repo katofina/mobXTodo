@@ -79,7 +79,10 @@ export default function Home() {
         }}
       >
         <QueryClientProvider client={queryClient}>
-          <RandomActivity closeModule={() => hideModule(1)} />
+          <RandomActivity
+            isOpen={isModuleDisplayed[1]}
+            closeModule={() => hideModule(1)}
+          />
         </QueryClientProvider>
       </Animated.View>
       <Animated.View
