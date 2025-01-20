@@ -102,6 +102,8 @@ const styles = StyleSheet.create({
     width: 300,
     height: 200,
     shadowColor: "grey",
+    elevation: 10,
+    shadowOpacity: 0.5,
     justifyContent: "center",
     padding: 5,
   },

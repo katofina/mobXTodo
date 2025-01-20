@@ -26,6 +26,7 @@ interface Prop {
 export default function AddTask({ closeModule, isModuleDisplayed }: Prop) {
   const [date, setDate] = useState<DateType | undefined>(dayjs());
   const [error, setError] = useState<null | string>(null);
+  console.log(isModuleDisplayed)
 
   const addItem = useTasksStore((store) => store.addItem);
 
@@ -54,7 +55,7 @@ export default function AddTask({ closeModule, isModuleDisplayed }: Prop) {
     } else setError("You should enter the title and choose the right time!");
   }
 
-  return (
+  if (isModuleDisplayed) return (
     <View style={styles.container}>
       <Text style={styles.header}>Add new task: </Text>
       <View style={styles.inputs}>
@@ -63,7 +64,7 @@ export default function AddTask({ closeModule, isModuleDisplayed }: Prop) {
           style={styles.input}
           placeholder="Enter the title of the task"
           placeholderTextColor="grey"
-          multiline={true}
+          multiline={false}
           onChangeText={saveTitle}
           caretHidden={true}
         />
@@ -88,7 +89,7 @@ export default function AddTask({ closeModule, isModuleDisplayed }: Prop) {
         <Button title="Choose" onPress={hidePicker} />
       </Animated.View>
       {error && <Text style={styles.error}>{error}</Text>}
-      <Button title="Confirm" color="black" onPress={checkAndSend} />
+      <Button title="Confirm" color="black" onPress={checkAndSend}/>
     </View>
   );
 }
@@ -100,6 +101,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white",
     shadowColor: "grey",
+    shadowOpacity: 0.5,
     elevation: 10,
     justifyContent: "space-evenly",
     position: "absolute",
@@ -135,6 +137,7 @@ const styles = StyleSheet.create({
   calendar: {
     backgroundColor: "white",
     shadowColor: "grey",
+    shadowOpacity: 0.5,
     elevation: 10,
     position: "absolute",
     top: 0,

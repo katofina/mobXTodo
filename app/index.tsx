@@ -2,7 +2,7 @@ import AddTask from "@/components/AddTask";
 import ListOfTasks from "@/components/ListOfTasks";
 import RandomActivity from "@/components/RandomActivity";
 import useTasksStore from "@/store/store";
-import { Entypo, FontAwesome, FontAwesome5 } from "@expo/vector-icons";
+import { Entypo, FontAwesome } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   View,
@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   Pressable,
   useWindowDimensions,
+  SafeAreaView,
 } from "react-native";
 import Animated, { useSharedValue, withTiming } from "react-native-reanimated";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -22,6 +23,7 @@ export default function Home() {
     1: false,
     2: false,
   });
+  console.log(isModuleDisplayed)
 
   const widthOfModule = 350;
   const width = useWindowDimensions().width;
@@ -48,7 +50,7 @@ export default function Home() {
     (store) => store.tasks.filter((item) => item.made === false).length,
   );
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.textHeader}>Tasks:</Text>
         <View style={styles.containerCounter}>
@@ -75,7 +77,7 @@ export default function Home() {
           transform: [{ translateX: translateX1 }],
           zIndex: 2,
           position: "absolute",
-          top: "10%",
+          top: "10%"
         }}
       >
         <QueryClientProvider client={queryClient}>
@@ -90,18 +92,19 @@ export default function Home() {
           transform: [{ translateX: translateX2 }],
           zIndex: 2,
           position: "absolute",
-          top: "10%",
+          top: "15%",
+          left: "3%"
         }}
       >
         <AddTask
-          isModuleDisplayed={isModuleDisplayed[1]}
+          isModuleDisplayed={isModuleDisplayed[2]}
           closeModule={() => hideModule(2)}
         />
       </Animated.View>
       {(isModuleDisplayed[1] || isModuleDisplayed[2]) && (
         <Pressable style={styles.overlay} onPress={() => hideModule(2)} />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -115,6 +118,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 10,
     alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "grey"
   },
   addButton: {
     justifyContent: "center",
@@ -122,6 +127,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "white",
     shadowColor: "grey",
+    shadowOpacity: 0.5,
     elevation: 10,
   },
   textHeader: {
