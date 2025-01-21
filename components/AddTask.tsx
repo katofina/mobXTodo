@@ -26,7 +26,6 @@ interface Prop {
 export default function AddTask({ closeModule, isModuleDisplayed }: Prop) {
   const [date, setDate] = useState<DateType | undefined>(dayjs());
   const [error, setError] = useState<null | string>(null);
-  console.log(isModuleDisplayed)
 
   const addItem = useTasksStore((store) => store.addItem);
 
@@ -55,7 +54,7 @@ export default function AddTask({ closeModule, isModuleDisplayed }: Prop) {
     } else setError("You should enter the title and choose the right time!");
   }
 
-  if (isModuleDisplayed) return (
+  return (
     <View style={styles.container}>
       <Text style={styles.header}>Add new task: </Text>
       <View style={styles.inputs}>
@@ -104,7 +103,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     elevation: 10,
     justifyContent: "space-evenly",
-    position: "absolute",
   },
   header: {
     fontSize: 25,

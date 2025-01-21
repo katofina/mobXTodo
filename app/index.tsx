@@ -23,15 +23,13 @@ export default function Home() {
     1: false,
     2: false,
   });
-  console.log(isModuleDisplayed)
 
-  const widthOfModule = 350;
   const width = useWindowDimensions().width;
   const translateX1 = useSharedValue(-width);
   const translateX2 = useSharedValue(-width);
 
   function showModule(num: number) {
-    const show = () => withTiming((width - widthOfModule) / 2);
+    const show = () => withTiming(10);
     if (num === 1) translateX1.value = show();
     if (num === 2) translateX2.value = show();
     setIsModuleDisplayed({ ...isModuleDisplayed, [num]: true });
